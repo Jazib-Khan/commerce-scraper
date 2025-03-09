@@ -35,25 +35,53 @@ if ($htmlContent === false) {
 // close cURL session
 curl_close($curl);
 
-// create a new Simple HTML DOM instance and parse the HTML
+// create a new Simple HTML DOM instance
 $html = str_get_html($htmlContent);
 
-// find the first product's name
-$name = $html->find(".woocommerce-loop-product__title", 0);
+// obtain the product containers
+$products = $html->find(".product");
 
-// find the first product image
-$image = $html->find("img", 0);
+// create an empty product array to collect the extracted data
+$productData = array();
 
-// find the first product's price
-$price = $html->find("span.price", 0);
+// loop through the product container to extract its elements
+foreach ($products as $product) {
 
-// decode the HTML entity in the currency symbol
-$decodedPrice = html_entity_decode($price->plaintext);
+    // find the name elements within the current product element
+    $name = $product->find(".woocommerce-loop-product__title", 0);
 
-// print the extracted data
-echo "Name: $name->plaintext \n";
-echo "Price: $decodedPrice \n";
-echo "Image URL: $image->src \n";
+    // find the image elements within the current product element
+    $image = $product->find("img", 0);
+
+    // find the price elements within the current product element
+    $price = $product->find("span.price", 0);
+
+    // check if the target elements exist with the required attributes
+    if (
+        $name && $price && $image 
+        && isset($name->plaintext)
+        && isset($price->plaintext) 
+        && isset($image->src)
+        
+    ) {
+
+        // decode the price symbol to $
+        $decodedPrice = html_entity_decode($price->plaintext);
+
+        // create an array of the extracted data
+        $productInfo = array(
+            "Name" => $name->plaintext,
+            "Price" => $decodedPrice,
+            "Image URL" => $image->src
+        );
+
+        // append the extracted data to the empty product array
+        $productData[] = $productInfo;
+    }
+}
+
+// print the extracted products
+print_r($productData);
 
 // clean up resources
 $html->clear();
