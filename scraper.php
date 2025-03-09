@@ -1,6 +1,6 @@
 <?php
 
-// include the Simple HTML DOM parser library
+// include the Simple HTML DOM parser library -> download from source and paste its simple_html_dom.php file in your project folder
 include_once("simple_html_dom.php");
 
 // specify the target website's URL
@@ -80,8 +80,25 @@ foreach ($products as $product) {
     }
 }
 
-// print the extracted products
-print_r($productData);
+// define the path to the CSV file
+$csvFilePath = "products.csv";
+
+// open the CSV file for writing
+$file = fopen($csvFilePath, "w");
+
+// write the header row to the CSV file
+fputcsv($file, array_keys($productData[0]));
+
+// write each product's data to the CSV file
+foreach ($productData as $product) {
+    fputcsv($file, $product);
+}
+
+// close the CSV file
+fclose($file);
+
+// output a message indicating successful CSV creation
+echo "CSV file created successfully: $csvFilePath";
 
 // clean up resources
 $html->clear();
